@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "rh$$a_#87-yqqj%!oqn+)s(_hfet)*$)lgo=(bcve+e@om1dhf6"
+SECRET_KEY = config("DJANGO_SECRET_KEY")
 
 
 # mongodb_host = os.environ.get("NOSQL_HOST") or "localhost"
@@ -117,11 +117,11 @@ stock_app_url = "http://vuexy.myds.me:8071"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': "personal_finance",
-        'USER': "test",
-        'PASSWORD': "test",
-        'HOST': "postgres", 
-        'PORT': 5432,
+        'NAME': config('SQL_DB_NAME'),
+        'USER': config('SQL_USER'),
+        'PASSWORD': config('SQL_PASSWORD'),
+        'HOST': config('SQL_HOST'), 
+        'PORT': config('SQL_PORT', '5432'),
     }
 }
 
@@ -274,7 +274,7 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': config('ROTATE_REFRESH_TOKENS', default=True, cast=bool),
     'BLACKLIST_AFTER_ROTATION': config('BLACKLIST_AFTER_ROTATION', default=True, cast=bool),
     'ALGORITHM': config('JWT_ALGORITHM', default='HS256'),
-    'SIGNING_KEY': "rh$$a_#87-yqqj%!oqn+)s(_hfet)*$)lgo=(bcve+e@om1dhf6",  # Make sure SECRET_KEY is also in .env file
+    'SIGNING_KEY': config('SECRET_KEY'),  # Make sure SECRET_KEY is also in .env file
     'AUTH_HEADER_TYPES': ('Bearer',),
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
@@ -331,8 +331,3 @@ AXES_RESET_ON_SUCCESS = config('AXES_RESET_ON_SUCCESS', default=True, cast=bool)
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
-
-
-

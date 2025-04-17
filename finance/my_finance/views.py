@@ -213,8 +213,7 @@ today_date = datetime.date.today()
 
 # plaid Intergration
 
-# To-Do - Remove api creds
-PLAID_API_KEY = {"clientId": "628518dd9002d30018305066", "secret": "e14271c91cbc26e38782ed74bfa0cf"}
+PLAID_API_KEY = json.loads(config("PLAID_API_KEY"))
 configuration = plaid.Configuration(
     host=plaid.Environment.Sandbox, api_key=PLAID_API_KEY
 )
@@ -222,16 +221,15 @@ api_client = plaid.ApiClient(configuration)
 client = plaid_api.PlaidApi(api_client)
 
 # open ai
-open_ai_api_key = "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"
+open_ai_api_key = config("OPEN_AI_KEY")
 ai_client = OpenAI(api_key=open_ai_api_key)
 
 # CSV File links
-Tour_APIs = {"transactions": "https://docs.google.com/spreadsheets/d/12dMtROfjqtco0PB5nxfeUXZeJFIblkR_79hKo-ZPzvo/export?format=csv", "saving_account_page": "https://docs.google.com/spreadsheets/d/1w-1HFcnb3ANgIfdjLgqAmSsyYo8zjlQ7EF_44ZgDdbc/export?format=csv", "bank_ac_page": "https://docs.google.com/spreadsheets/d/1FNHH3kP_sCvIIdh3ZGlTz4pQyrbmm1CQ1C5bWZl0qLk/export?format=csv", "bill_subs_page": "https://docs.google.com/spreadsheets/d/1hMzMvn9bVt7p38Hh_6IGaiOhZJGRGR6QhEhFebcRqVI/export?format=csv", "budget_page": "https://docs.google.com/spreadsheets/d/16T0fYlvwrcPVh9BfbI1VEUEk-UedK04jIhAHYcg46i0/export?format=csv", "category_page": "https://docs.google.com/spreadsheets/d/1aWnGpV8GOBPRQ6mPjME9LkZ8C4MHcnWL76Id2dnPYHw/export?format=csv", "compare_budget_page": "https://docs.google.com/spreadsheets/d/1-KamKXzzNFUCpZx4eiLAW_hw7pk888ekOPPIKmBhT8k/export?format=csv", "compare_target_budget_page": "https://docs.google.com/spreadsheets/d/1gQJ03BGwacwCacEhBkgiSlfv4mqG7mWhnNxxZtasTYU/export?format=csv", "goals_page": "https://docs.google.com/spreadsheets/d/1xaETFtRcJ_A4i2hLXyv0MZry3IlXSAo4gbU9-vOW5tU/export?format=csv", "mortgage_calculator_page": "https://docs.google.com/spreadsheets/d/1ePLySO5jOuu1qbYEG3zL3VBhW2uCGSo89o1R-2Ws94c/export?format=csv", "personal_finance_dashboard": "https://docs.google.com/spreadsheets/d/1v_Fbo--1kgi6QRUNNmjwmLnGJfFgFMpG9dLPg7m4yBI/export?format=csv", "sample_budgets_page": "https://docs.google.com/spreadsheets/d/18OHZ2hq9DH16vriqp2ibV8gG8JZVtUlOnDeUPTJ22zU/export?format=csv"}
+Tour_APIs = json.loads(config("TOUR_API"))
 
 
-wordpress_domain = "https://simplefinancial.org"
-wordpress_api_key = "F4ARzxSFjQpZxqjt5jiJn7HlXqMu23Y"
-
+wordpress_domain = config("WORDPRESS_DOMAIN")
+wordpress_api_key = config("WORDPRESS_API_KEY")
 
 @ensure_csrf_cookie
 def create_link_token(request):
