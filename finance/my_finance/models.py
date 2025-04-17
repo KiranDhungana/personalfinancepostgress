@@ -2133,7 +2133,7 @@ class PropertyInvoice(models.Model):
                       "quantity", "already_paid", "invoice_status", "record_payment"]:
             value = getattr(self, field, None)
             if value:
-                setattr(self, field, bleach.clean(value))
+                setattr(self, field, bleach.clean(str(value)))
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -2196,7 +2196,7 @@ class PropertyExpense(models.Model):
         for field in ["payee_name", "unit_name", "category", "description"]:
             value = getattr(self, field, None)
             if value:
-                setattr(self, field, bleach.clean(value))
+                setattr(self, field, bleach.clean(str(value)))
         super().save(*args, **kwargs)
 
     def __str__(self):
