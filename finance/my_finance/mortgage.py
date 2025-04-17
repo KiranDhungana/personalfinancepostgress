@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import math
-
+import numpy_financial as npf
 
 def calculate_tenure(loan_amount, monthly_payment, annual_interest_rate):
     # Convert annual interest rate to a monthly interest rate
@@ -36,8 +36,8 @@ def calculator(amount, interest, tenure, month=None):
         nper = month
 
     periods = np.arange(1, nper + 1, dtype=int)
-    principal = np.ppmt(rate, periods, nper, pv)
-    interest = np.ipmt(rate, periods, nper, pv)
+    principal = npf.ppmt(rate, periods, nper, pv)
+    interest = npf.ipmt(rate, periods, nper, pv)
     pmt = principal + interest  # Or: pmt = np.pmt(rate, nper, pv)
 
     cols = ['initial_balance', 'payment', 'interest', 'principle', 'ending_balance']

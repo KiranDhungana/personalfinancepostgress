@@ -214,7 +214,7 @@ today_date = datetime.date.today()
 # plaid Intergration
 
 # To-Do - Remove api creds
-PLAID_API_KEY = json.loads(config("PLAID_API_KEY"))
+PLAID_API_KEY = {"clientId": "628518dd9002d30018305066", "secret": "e14271c91cbc26e38782ed74bfa0cf"}
 configuration = plaid.Configuration(
     host=plaid.Environment.Sandbox, api_key=PLAID_API_KEY
 )
@@ -222,15 +222,15 @@ api_client = plaid.ApiClient(configuration)
 client = plaid_api.PlaidApi(api_client)
 
 # open ai
-open_ai_api_key = config("OPEN_AI_KEY")
+open_ai_api_key = "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"
 ai_client = OpenAI(api_key=open_ai_api_key)
 
 # CSV File links
-Tour_APIs = json.loads(config("TOUR_API"))
+Tour_APIs = {"transactions": "https://docs.google.com/spreadsheets/d/12dMtROfjqtco0PB5nxfeUXZeJFIblkR_79hKo-ZPzvo/export?format=csv", "saving_account_page": "https://docs.google.com/spreadsheets/d/1w-1HFcnb3ANgIfdjLgqAmSsyYo8zjlQ7EF_44ZgDdbc/export?format=csv", "bank_ac_page": "https://docs.google.com/spreadsheets/d/1FNHH3kP_sCvIIdh3ZGlTz4pQyrbmm1CQ1C5bWZl0qLk/export?format=csv", "bill_subs_page": "https://docs.google.com/spreadsheets/d/1hMzMvn9bVt7p38Hh_6IGaiOhZJGRGR6QhEhFebcRqVI/export?format=csv", "budget_page": "https://docs.google.com/spreadsheets/d/16T0fYlvwrcPVh9BfbI1VEUEk-UedK04jIhAHYcg46i0/export?format=csv", "category_page": "https://docs.google.com/spreadsheets/d/1aWnGpV8GOBPRQ6mPjME9LkZ8C4MHcnWL76Id2dnPYHw/export?format=csv", "compare_budget_page": "https://docs.google.com/spreadsheets/d/1-KamKXzzNFUCpZx4eiLAW_hw7pk888ekOPPIKmBhT8k/export?format=csv", "compare_target_budget_page": "https://docs.google.com/spreadsheets/d/1gQJ03BGwacwCacEhBkgiSlfv4mqG7mWhnNxxZtasTYU/export?format=csv", "goals_page": "https://docs.google.com/spreadsheets/d/1xaETFtRcJ_A4i2hLXyv0MZry3IlXSAo4gbU9-vOW5tU/export?format=csv", "mortgage_calculator_page": "https://docs.google.com/spreadsheets/d/1ePLySO5jOuu1qbYEG3zL3VBhW2uCGSo89o1R-2Ws94c/export?format=csv", "personal_finance_dashboard": "https://docs.google.com/spreadsheets/d/1v_Fbo--1kgi6QRUNNmjwmLnGJfFgFMpG9dLPg7m4yBI/export?format=csv", "sample_budgets_page": "https://docs.google.com/spreadsheets/d/18OHZ2hq9DH16vriqp2ibV8gG8JZVtUlOnDeUPTJ22zU/export?format=csv"}
 
 
-wordpress_domain = config("WORDPRESS_DOMAIN")
-wordpress_api_key = config("WORDPRESS_API_KEY")
+wordpress_domain = "https://simplefinancial.org"
+wordpress_api_key = "F4ARzxSFjQpZxqjt5jiJn7HlXqMu23Y"
 
 
 @ensure_csrf_cookie
@@ -11777,6 +11777,7 @@ def process_image(request):
 
 def property_save_fun(request, property_obj, user_name, rent, total_tenants):
     # -------------- Property Details ---------------------- #
+    
     try:
         property_image = request.FILES["property_image"]
     # To-Do  Remove bare except
@@ -11888,26 +11889,27 @@ def property_save_fun(request, property_obj, user_name, rent, total_tenants):
     property_obj.save()
 
 
-def rental_info_save(
-    request, user_name, rental_obj, property_obj, invoice_data, rent, method_name
-):
+def rental_info_save(request, user_name, rental_obj, property_obj, invoice_data, rent, method_name):
     # -------------- Rental Details ---------------------- #
-    select_unit = request.POST["select_unit"]
+    select_unit = request.POST.get("select_unit", 0)
     term_name = request.POST["term_name"]
     lease_start_date = request.POST["lease_start_date"]
     lease_end_date = request.POST["lease_end_date"]
     deposit = request.POST["deposit"]
     due_on = request.POST["due_on"]
     already_deposit = request.POST.getlist("already_deposit", [])
-    select_due_date = request.POST["select_due_date"]
+    select_due_date = 1
     first_rental_due_date = request.POST["first_rental_due_date"]
-    invoice_date_list = ast.literal_eval(request.POST["invoice_date_list"])
-    invoice_amount_list = ast.literal_eval(request.POST["invoice_amount_list"])
-    first_rental_due_date = str(
-        datetime.datetime.strptime(
-            first_rental_due_date, DateFormats.MONTH_DD_YYYY.value
-        ).date()
-    )
+    invoice_date_list = (request.POST.get("invoice_date_list",[]))
+
+    try:
+        first_rental_due_date = str(
+            datetime.datetime.strptime(
+                first_rental_due_date, DateFormats.MONTH_DD_YYYY.value
+            ).date()
+        )
+    except ValueError:
+        first_rental_due_date = None
 
     # -------------- Tenants Details ---------------------- #
     tenant_f_name = request.POST["tenant_f_name"]
@@ -12064,12 +12066,12 @@ def add_property(request):
         property_obj = Property()
         rental_obj = PropertyRentalInfo()
         invoice_obj = PropertyInvoice()
-        rent = request.POST["rent"]
+        rent = request.POST.get("rent")
+        if rent == "":
+            rent = 0
         total_tenants = 1
         property_save_fun(request, property_obj, user_name, rent, total_tenants)
-        rental_info_save(
-            request, user_name, rental_obj, property_obj, invoice_obj, rent, "add"
-        )
+        rental_info_save(request, user_name, rental_obj, property_obj, invoice_obj, rent, "add")
         return redirect("/property_list/")
     else:
         try:
@@ -12138,15 +12140,7 @@ def update_property(request, pk, method_name):
         )
         if request.method == "POST":
             rent = request.POST["rent"]
-            rental_info_save(
-                request,
-                user_name,
-                result_obj,
-                result_obj.property_address,
-                invoice_obj,
-                rent,
-                "update",
-            )
+            rental_info_save(request,user_name,result_obj,result_obj.property_address,invoice_obj,rent,"update")
             return redirect(f"/property_details/{result_obj.property_address.id}")
 
         invoice_date_list = []
@@ -12265,9 +12259,7 @@ def add_lease(request, pk, unit_name):
         rental_obj = PropertyRentalInfo()
         invoice_obj = PropertyInvoice()
         rent = request.POST["rent"]
-        rental_info_save(
-            request, username, rental_obj, result_obj, invoice_obj, rent, "add"
-        )
+        rental_info_save(request, username, rental_obj, result_obj, invoice_obj, rent, "add")
         total_amount = float(result_obj.total_monthly_rent) + float(rent)
         result_obj.total_monthly_rent = total_amount
         tenants_no = int(result_obj.total_tenants) + 1
