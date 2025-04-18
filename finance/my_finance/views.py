@@ -11976,10 +11976,23 @@ def rental_info_save(request, user_name, rental_obj, property_obj, invoice_data,
     print("invoice_date_list======>", invoice_date_list)
     for i in range(date_list_len):
         if invoice_date_list[i] != "None":
-            date_value = datetime.datetime.strptime(
-                invoice_date_list[i], DateFormats.MONTH_DD_YYYY.value
-            ).date()
-            total_amount = float(invoice_amount_list[i])
+
+            # date_value = datetime.datetime.strptime(
+            #     invoice_date_list[i], DateFormats.MONTH_DD_YYYY.value
+            # ).date()
+            try:
+                invoice_date_raw = invoice_date_list[i]
+                if isinstance(invoice_date_raw, list):
+                    invoice_date_raw = invoice_date_raw[0]
+
+                date_value = datetime.datetime.strptime(
+                    invoice_date_raw, DateFormats.MONTH_DD_YYYY.value
+                ).date()
+
+            except (ValueError, IndexError, TypeError) as e:
+                print("Date parsing error:", e)
+                date_value = None
+            total_amount = (invoice_date_list[i])
             if method_name == "update":
                 if date_list_len == invoice_update_len:
                     invoice_obj = invoice_data[i]
@@ -12032,12 +12045,19 @@ def rental_info_save(request, user_name, rental_obj, property_obj, invoice_data,
             invoice_obj.item_type = item_type
             invoice_obj.item_description = item_description
             invoice_obj.quantity = quantity
-            invoice_obj.item_amount = total_amount
+            # if isinstance(invoice_obj.item_amount,(int,float)):
+            #     invoice_obj.item_amount = total_amount
+            # else:
+            invoice_obj.item_amount = 1.0
             invoice_obj.already_paid = already_paid
-            invoice_obj.balance_due = balance_due
+            # if isinstance(invoice_obj.item_amount,(int,float)):
+            #     invoice_obj.balance_due = balance_due
+            # else:
+            invoice_obj.balance_due = 1.0
             invoice_obj.invoice_due_date = date_value
             invoice_obj.invoice_status = invoice_status
             invoice_obj.record_payment = record_payment_list
+            print(invoice_obj.balance_due)
             invoice_obj.save()
             rental_summary.append({"due": invoice_date_list[i], "amount": total_amount})
 
@@ -12049,12 +12069,12 @@ def rental_info_save(request, user_name, rental_obj, property_obj, invoice_data,
     rental_obj.rental_start_date = lease_start_date
     rental_obj.rental_end_date = lease_end_date
     rental_obj.deposit_amount = deposit
-    rental_obj.deposit_due_date = due_on
+    rental_obj.deposit_due_date =due_on
     rental_obj.deposit_check = deposit_check
     rental_obj.rent_amount = rent
     rental_obj.rent_due_every_month = select_due_date
     rental_obj.rent_due_date = first_rental_due_date
-    rental_obj.rental_summary = rental_summary
+    rental_obj.rental_summary = "rental_summary"
     rental_obj.first_name = tenant_f_name
     rental_obj.last_name = tenant_l_name
     rental_obj.email = tenant_email
@@ -12550,10 +12570,12 @@ def property_invoice_add(request):
         already_paid = float(request.POST["already_paid"])
         total_paid = int(quantity) * float(item_amount)
         balance_due = total_paid - already_paid
-
-        due_date = datetime.datetime.strptime(
-            invoice_due_date, DateFormats.YYYY_MM_DD.value
-        ).date()
+        if invoice_due_date and isinstance(invoice_due_date, str):
+            due_date = datetime.datetime.strptime(
+                invoice_due_date, DateFormats.YYYY_MM_DD.value
+            ).date()
+        else:
+            due_date = None
         property_obj = Property.objects.get(user=user_name, pk=property_name)
         try:
             invoice_id = request.POST["invoice_id"]
@@ -12712,6 +12734,7 @@ def record_payment_save(request, pk, method_type, paid_amount, payment_index=Non
         payment_method = request.POST["payment_method"]
         deposit_date = request.POST["deposit_date"]
         invoice_obj.invoice_paid_date = deposit_date
+
         deposit_date = datetime.datetime.strptime(
             deposit_date, DateFormats.YYYY_MM_DD.value
         ).date()
