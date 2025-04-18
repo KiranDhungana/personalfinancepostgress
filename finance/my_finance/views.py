@@ -12244,6 +12244,8 @@ def property_details(request, pk):
                 else:
                     maintenance_dict[name_unit] = [maintenance_data]
         overdue_list = []
+        day_diff = None   # ← initialize here
+
         for data_obj in invoice_obj:
             paid_amount = float(data_obj.already_paid)
             invoice_status = data_obj.invoice_status
