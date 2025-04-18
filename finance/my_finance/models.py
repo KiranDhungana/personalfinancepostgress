@@ -2343,7 +2343,13 @@ class Account(models.Model):
     plaid_account_id = models.CharField(max_length=200, blank=True, null=True)
     mask = models.CharField(max_length=200, blank=True, null=True)
     subtype = models.CharField(max_length=200, blank=True, null=True)
-    item = models.ForeignKey(PlaidItem, on_delete=models.CASCADE)
+    item = models.ForeignKey(
+     PlaidItem,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="accounts",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

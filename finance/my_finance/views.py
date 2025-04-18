@@ -10,6 +10,9 @@ from io import BytesIO
 from itertools import chain
 from openai import OpenAI
 
+from collections import defaultdict
+from decimal import Decimal
+
 import pandas as pd
 import plaid
 import pytz
@@ -8384,6 +8387,8 @@ def loan_add(request):
             )
             if mortgage_year:
                 print(mortgage_year)
+                mortgage_year_str = str(mortgage_year)
+
                 Account.objects.create(
                     name=sub_category_name,
                     user=user,
@@ -8394,7 +8399,7 @@ def loan_add(request):
                     interest_rate=interest_rate,
                     mortgage_monthly_payment=monthly_payment,
                     mortgage_date=mortgage_date,
-                    mortgage_year=mortgage_year,
+                    mortgage_year=mortgage_year_str,
                     include_net_worth=include_net_worth,
                 )
                 return redirect("/mortgages-loans-accounts/")
@@ -12172,11 +12177,21 @@ def list_property(request):
             property_details__property_name=data.property_name, status="Unresolved"
         )
         maintenance_dict[data.property_name] = len(maintenance_obj)
+    total_property = defaultdict(Decimal)
+    for p in property_obj:
+        if p.value:
+            try:
+                total_property[p.currency or ""] += Decimal(p.value)
+            except (ValueError, Decimal.InvalidOperation):
+                pass
+    
 
     context = {
         "property_obj": property_obj,
         "maintenance_dict": maintenance_dict,
         "property_key": PROPERTY_KEYS,
+        "total_property":  dict(total_property),
+
         "property_key_dumps": json.dumps(PROPERTY_KEYS),
     }
     return render(request, "property/property_list.html", context=context)
